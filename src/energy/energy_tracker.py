@@ -1,4 +1,5 @@
 import os
+import time
 from pynvml import (
     nvmlInit, nvmlShutdown, nvmlDeviceGetHandleByIndex,
     nvmlDeviceGetTotalEnergyConsumption, NVMLError
@@ -31,6 +32,7 @@ class EnergyTracker:
             return 0.0
 
     def start(self):
+        time.sleep(0.5) # wait half a second for background stuff to end
         self.gpu_start = self._get_gpu_energy()
         self.cpu_start = self._get_cpu_energy()
 
