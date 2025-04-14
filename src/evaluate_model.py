@@ -31,6 +31,11 @@ parser.add_argument(
     default=0.1,
     help="Pruning ratio (0.0–1.0)"
 )
+parser.add_argument(
+    "--quantization",
+    action="store_true",
+    help="Enable 8-bit quantization"
+)
 
 args = parser.parse_args()
 
@@ -70,7 +75,7 @@ def evaluate(model, dataloader, device, metrics):
 
 def main():
     # Run evaluation
-    model, _ = get_pretrained_vit()
+    model, _ = get_pretrained_vit(quantization=args.quantization)
 
     if args.pruning_type == "structural":
         prune_by_importance(model, args.pruning_ratio)

@@ -5,12 +5,10 @@ import torch_pruning as tp
 
 def model_analysis(model, shape=(1, 3, 224, 224)):
     dummy_input = torch.randn(shape)
-    macs, nparams = tp.utils.count_ops_and_params(model, dummy_input)
-    flops = FlopCountAnalysis(model, dummy_input).total()
+    flops, nparams = tp.utils.count_ops_and_params(model, dummy_input)
 
-    print(f"Total MACs   : {macs / 1e9:.2f} G")
-    print(f"Total Params : {nparams / 1e6:.2f} M")
     print(f"Total FLOPs  : {flops / 1e9:.2f} G")
+    print(f"Total Params : {nparams / 1e6:.2f} M")
 
 
 def flop_analysis(model, shape=(1, 3, 224, 224)):
