@@ -3,7 +3,7 @@ import torch_pruning as tp
 from transformers.models.vit.modeling_vit import ViTSelfAttention, ViTSelfOutput
  
 
-def prune_by_importance(model, ratio=0.05, include_attn=True):
+def prune_by_importance(model, ratio=0.05, include_attn=False):
     if include_attn:
         example_inputs = torch.randn(1, 3, 224, 224)
         imp = tp.importance.MagnitudeImportance(p=1)
