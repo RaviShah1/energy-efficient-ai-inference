@@ -1,5 +1,6 @@
 import torch
 import torch.optim as optim
+from torch.optim.lr_scheduler import CosineAnnealingLR
 import argparse
 
 from data.dataset import get_train_val_loaders, get_test_loader
@@ -22,6 +23,7 @@ parser.add_argument("--batch_size", type=int, default=16, help="Batch size for t
 parser.add_argument("--save_prefix", type=str, default="weights", help="Prefix for saving model weights each epoch")
 parser.add_argument("--temperature", type=float, default=4.0, help="Distillation temperature")
 parser.add_argument("--alpha", type=float, default=0.25, help="Weight for distillation loss, (1-alpha) for CE loss")
+parser.add_argument("--scheduler", action="store_true", help="True to use cosine lr scheduler")
 args = parser.parse_args()
 
 
@@ -81,6 +83,11 @@ def main():
     # Optimizer
     optimizer = optim.AdamW(model_student.parameters(), lr=args.lr, weight_decay=0.01)
 
+    # Scheduler
+    scheduler = None
+    if args.scheduler:
+        scheduler = CosineAnnealingLR(optimizer, T_max=args.epochs)
+
     # Loss
     if args.mode == "distill":
         loss_fn = get_distillation_loss(temperature=args.temperature, alpha=args.alpha)
@@ -96,6 +103,7 @@ def main():
         testloader,
         optimizer,
         loss_fn,
+        scheduler=scheduler,
         epochs=args.epochs,
     )
 

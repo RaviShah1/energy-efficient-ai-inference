@@ -2,6 +2,7 @@ import torch
 import time
 from tqdm import tqdm
 import argparse
+from quanto import quantize, freeze, qint8, qint4, qfloat8
 
 from data.dataset import get_test_loader
 from energy.energy_tracker import EnergyTracker
@@ -81,22 +82,25 @@ def evaluate(model, dataloader, device, metrics):
 
 def main():
     # Run evaluation
-    model, _ = get_pretrained_vit(quantization=args.quantization)
-    
-
-    if args.pruning_type == "structural":
-        prune_by_importance(model, args.pruning_ratio)
-    elif args.pruning_type == "unstructural":
-        prune_by_masking(model, args.pruning_ratio)
-
+    model = None
     if args.weights:
+        model, _ = get_pretrained_vit()
         prune_by_importance(model, args.pruning_ratio, include_attn=True)
         model.to(device)
         state_dict = torch.load(args.weights, map_location=device)
         model.load_state_dict(state_dict)
+        if args.quantization:
+            quantize(model, weights=qint8, activations=None)
+            freeze(model)
         print(f"Loaded weights from {args.weights}")
-    
-    model.to(device)
+    else:
+        model, _ = get_pretrained_vit(quantization=args.quantization)
+        if args.pruning_type == "structural":
+            prune_by_importance(model, args.pruning_ratio)
+        elif args.pruning_type == "unstructural":
+            prune_by_masking(model, args.pruning_ratio)
+        model.to(device)
+
     testloader = get_test_loader()
     warm_up_processors(model, (3, 224, 224), device)
     metrics = MultiClassClassificationMetrics()
