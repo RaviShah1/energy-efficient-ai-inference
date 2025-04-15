@@ -36,6 +36,12 @@ parser.add_argument(
     action="store_true",
     help="Enable 8-bit quantization"
 )
+parser.add_argument(
+    "--weights",
+    type=str,
+    default=None,
+    help="Path to saved model weights (.pth file)"
+)
 
 args = parser.parse_args()
 
@@ -76,11 +82,19 @@ def evaluate(model, dataloader, device, metrics):
 def main():
     # Run evaluation
     model, _ = get_pretrained_vit(quantization=args.quantization)
+    
 
     if args.pruning_type == "structural":
         prune_by_importance(model, args.pruning_ratio)
     elif args.pruning_type == "unstructural":
         prune_by_masking(model, args.pruning_ratio)
+
+    if args.weights:
+        prune_by_importance(model, args.pruning_ratio, include_attn=True)
+        model.to(device)
+        state_dict = torch.load(args.weights, map_location=device)
+        model.load_state_dict(state_dict)
+        print(f"Loaded weights from {args.weights}")
     
     model.to(device)
     testloader = get_test_loader()
