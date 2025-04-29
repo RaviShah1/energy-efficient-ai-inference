@@ -56,6 +56,7 @@ def distill_one_epoch(student_model, teacher_model, dataloader, loss_fn, optimiz
         total_loss += loss.item()
 
         if (batch_idx + 1) % log_interval == 0 or (batch_idx + 1) == num_batches:
-            print(f"[Batch {batch_idx+1}/{num_batches}] Distill Loss: {loss.item():.4f}")
+            current_lr = optimizer.param_groups[0]['lr']
+            print(f"[Batch {batch_idx+1}/{num_batches}] Distill Loss: {loss.item():.4f} | LR: {current_lr:.6f}")
 
     return total_loss / num_batches

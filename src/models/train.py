@@ -55,8 +55,8 @@ def train(model_student, model_teacher, trainloader, valloader, testloader, opti
             )
 
         print(f"Epoch {e+1} Training Loss: {avg_loss:.4f}")
-        evaluate_epoch(model_student, valloader, device, f"Val: epoch {e}")
-        evaluate_epoch(model_student, testloader, device, f"Test: epoch {e}")
+        evaluate_epoch(model_student, valloader, device, f"Val: epoch {e+1}")
+        evaluate_epoch(model_student, testloader, device, f"Test: epoch {e+1}")
 
         # Save model weights
         torch.save(model_student.state_dict(), f"{args.save_prefix}_{e+1}.pth")
